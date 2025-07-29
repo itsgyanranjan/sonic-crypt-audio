@@ -1,73 +1,11 @@
-# Welcome to your Lovable project
+SonicCrypt – SSTV Encryption Tool
+SonicCrypt is an innovative web-based tool that demonstrates how text and images can be converted into audio using an SSTV-style encryption concept. It is designed as a cybersecurity and steganography proof-of-concept, showing how ordinary data can be hidden inside sound waves for secure communication.
 
-## Project info
+The project delivers a fast and smooth experience with a hacker-themed dark interface. Users can enter any text or upload an image and instantly convert it into a downloadable WAV file that represents the encrypted content in sound form. Decryption allows users to upload an encrypted WAV file to simulate extracting a message, showcasing the concept of audio-based data hiding.
 
-**URL**: https://lovable.dev/projects/caaea49e-31dc-45cd-a9e6-04b6ca0775e7
+You can view and test the project online here:
+https://sonic-crypt-audio.lovable.app/
 
-## How can I edit this code?
+SonicCrypt performs quickly and efficiently, generating audio files in seconds and providing real-time feedback to users. It combines creativity with cybersecurity and sound processing, making it an engaging project for learning encryption and data hiding concepts.
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/caaea49e-31dc-45cd-a9e6-04b6ca0775e7) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/caaea49e-31dc-45cd-a9e6-04b6ca0775e7) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Future improvements can bring real SSTV encoding and decoding, image decryption, and advanced security features for practical applications.
