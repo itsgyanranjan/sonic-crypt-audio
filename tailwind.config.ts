@@ -52,6 +52,12 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// SonicCrypt custom colors
+				'matrix-green': 'hsl(var(--matrix-green))',
+				'matrix-green-dark': 'hsl(var(--matrix-green-dark))',
+				'matrix-green-light': 'hsl(var(--matrix-green-light))',
+				'cyber-blue': 'hsl(var(--cyber-blue))',
+				'warning-orange': 'hsl(var(--warning-orange))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
