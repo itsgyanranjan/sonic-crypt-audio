@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Download, Lock, FileText, Image } from "lucide-react";
+import { Download, Lock, FileText, Image, Play, Pause } from "lucide-react";
 import TerminalWindow from "./TerminalWindow";
 import FileUpload from "./FileUpload";
 import StatusIndicator from "./StatusIndicator";
@@ -14,6 +14,8 @@ const EncryptionPanel = () => {
   const [status, setStatus] = useState<"idle" | "processing" | "success" | "error">("idle");
   const [encryptedFile, setEncryptedFile] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"text" | "image">("text");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const handleEncrypt = async () => {
     if (!textInput.trim() && !selectedImage) {
@@ -50,6 +52,18 @@ const EncryptionPanel = () => {
   const handleImageSelect = (file: File) => {
     setSelectedImage(file);
     setTextInput(""); // Clear text when image is selected
+  };
+
+  const toggleAudio = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        audioRef.current.play();
+        setIsPlaying(true);
+      }
+    }
   };
 
   return (
@@ -143,6 +157,32 @@ const EncryptionPanel = () => {
             )}
           </div>
         </div>
+
+        {/* Audio Player */}
+        {encryptedFile && (
+          <div className="border border-primary/20 rounded-sm p-4 bg-card/50">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-mono text-primary">ENCRYPTED_AUDIO:</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleAudio}
+                className="h-8 w-8 p-0"
+              >
+                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              </Button>
+            </div>
+            <audio
+              ref={audioRef}
+              src={encryptedFile}
+              onEnded={() => setIsPlaying(false)}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              className="w-full"
+              controls
+            />
+          </div>
+        )}
 
         {/* Output info */}
         {status === "success" && (
