@@ -17,6 +17,50 @@ const EncryptionPanel = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  const generateAudioData = () => {
+    // Generate actual audio data (SSTV-like tones)
+    const sampleRate = 44100;
+    const duration = 3; // 3 seconds
+    const samples = sampleRate * duration;
+    const buffer = new ArrayBuffer(44 + samples * 2); // WAV header + 16-bit samples
+    const view = new DataView(buffer);
+    
+    // WAV header
+    const writeString = (offset: number, string: string) => {
+      for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    };
+    
+    writeString(0, 'RIFF');
+    view.setUint32(4, 36 + samples * 2, true);
+    writeString(8, 'WAVE');
+    writeString(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    writeString(36, 'data');
+    view.setUint32(40, samples * 2, true);
+    
+    // Generate SSTV-like audio data
+    let offset = 44;
+    for (let i = 0; i < samples; i++) {
+      // Create frequency modulated signal (1200-2300 Hz range)
+      const time = i / sampleRate;
+      const baseFreq = 1200 + (Math.sin(time * 0.5) * 550); // Varying frequency
+      const amplitude = Math.sin(2 * Math.PI * baseFreq * time) * 0.3;
+      const sample = Math.max(-1, Math.min(1, amplitude)) * 32767;
+      view.setInt16(offset, sample, true);
+      offset += 2;
+    }
+    
+    return buffer;
+  };
+
   const handleEncrypt = async () => {
     if (!textInput.trim() && !selectedImage) {
       toast.error("Please enter text or select an image to encrypt");
@@ -28,8 +72,9 @@ const EncryptionPanel = () => {
     // Simulate encryption process
     await new Promise(resolve => setTimeout(resolve, 3000));
     
-    // Create a simulated WAV file URL
-    const blob = new Blob(["Simulated SSTV audio data"], { type: "audio/wav" });
+    // Generate actual playable audio data
+    const audioBuffer = generateAudioData();
+    const blob = new Blob([audioBuffer], { type: "audio/wav" });
     const url = URL.createObjectURL(blob);
     setEncryptedFile(url);
     setStatus("success");
