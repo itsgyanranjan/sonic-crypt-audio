@@ -33,7 +33,4 @@ This project demonstrates:
 
 ---
 
-## 🚀 **Live Demo**  
 
-Click here to try the project online:  
-**🔗 [https://sonic-crypt-audio.lovable.app/](https://sonic-crypt-audio.lovable.app/)**  
