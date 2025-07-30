@@ -31,22 +31,20 @@ const DecryptionPanel = () => {
           let currentIndex = 0;
           
           while (currentIndex + samplesPerBit <= channelData.length) {
-            // Analyze frequency of this bit segment
-            let freq1200Count = 0;
-            let freq2300Count = 0;
-            
-            for (let i = 0; i < samplesPerBit; i += 100) { // Sample every 100 samples
-              const sample = channelData[currentIndex + i];
-              // Simple frequency detection based on zero crossings and amplitude patterns
-              if (Math.abs(sample) > 0.1) {
-                // This is a rough approximation - in reality you'd use FFT
-                if (i % 200 < 100) freq1200Count++;
-                else freq2300Count++;
+            // Count zero crossings to detect frequency
+            let zeroCrossings = 0;
+            for (let i = 1; i < samplesPerBit; i++) {
+              if ((channelData[currentIndex + i] >= 0) !== (channelData[currentIndex + i - 1] >= 0)) {
+                zeroCrossings++;
               }
             }
             
-            // Determine if this represents '0' or '1'
-            binaryString += freq2300Count > freq1200Count ? '1' : '0';
+            // Convert zero crossings to estimated frequency
+            const estimatedFreq = (zeroCrossings * sampleRate) / (2 * samplesPerBit);
+            
+            // Determine bit: 1200Hz for '0', 2300Hz for '1'
+            // Use threshold at 1750Hz (midpoint between 1200 and 2300)
+            binaryString += estimatedFreq > 1750 ? '1' : '0';
             currentIndex += samplesPerBit;
           }
           
