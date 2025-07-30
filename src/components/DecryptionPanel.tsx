@@ -134,9 +134,9 @@ const DecryptionPanel = () => {
             </div>
             
             <div className="border border-primary/30 rounded-sm p-4 bg-card/30 max-h-40 overflow-y-auto">
-              <pre className="font-mono text-sm text-primary whitespace-pre-wrap">
+              <div className="text-sm text-foreground whitespace-pre-wrap font-normal leading-relaxed">
                 {decryptedData}
-              </pre>
+              </div>
             </div>
             
             <div className="text-xs font-mono text-muted-foreground">
