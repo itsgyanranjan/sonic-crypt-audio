@@ -17,12 +17,19 @@ const EncryptionPanel = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const generateAudioData = () => {
-    // Generate actual audio data (SSTV-like tones)
+  const generateAudioData = (data: string) => {
+    // Encode text data into audio frequencies
     const sampleRate = 44100;
-    const duration = 3; // 3 seconds
-    const samples = sampleRate * duration;
-    const buffer = new ArrayBuffer(44 + samples * 2); // WAV header + 16-bit samples
+    const bitDuration = 0.1; // 0.1 seconds per bit
+    const samplesPerBit = Math.floor(sampleRate * bitDuration);
+    
+    // Convert text to binary
+    const binaryData = Array.from(data)
+      .map(char => char.charCodeAt(0).toString(2).padStart(8, '0'))
+      .join('');
+    
+    const totalSamples = binaryData.length * samplesPerBit;
+    const buffer = new ArrayBuffer(44 + totalSamples * 2);
     const view = new DataView(buffer);
     
     // WAV header
@@ -33,7 +40,7 @@ const EncryptionPanel = () => {
     };
     
     writeString(0, 'RIFF');
-    view.setUint32(4, 36 + samples * 2, true);
+    view.setUint32(4, 36 + totalSamples * 2, true);
     writeString(8, 'WAVE');
     writeString(12, 'fmt ');
     view.setUint32(16, 16, true);
@@ -44,18 +51,21 @@ const EncryptionPanel = () => {
     view.setUint16(32, 2, true);
     view.setUint16(34, 16, true);
     writeString(36, 'data');
-    view.setUint32(40, samples * 2, true);
+    view.setUint32(40, totalSamples * 2, true);
     
-    // Generate SSTV-like audio data
+    // Generate audio data with frequency encoding
     let offset = 44;
-    for (let i = 0; i < samples; i++) {
-      // Create frequency modulated signal (1200-2300 Hz range)
-      const time = i / sampleRate;
-      const baseFreq = 1200 + (Math.sin(time * 0.5) * 550); // Varying frequency
-      const amplitude = Math.sin(2 * Math.PI * baseFreq * time) * 0.3;
-      const sample = Math.max(-1, Math.min(1, amplitude)) * 32767;
-      view.setInt16(offset, sample, true);
-      offset += 2;
+    for (let i = 0; i < binaryData.length; i++) {
+      const bit = binaryData[i];
+      const freq = bit === '1' ? 2300 : 1200; // 2300Hz for '1', 1200Hz for '0'
+      
+      for (let j = 0; j < samplesPerBit; j++) {
+        const time = j / sampleRate;
+        const amplitude = Math.sin(2 * Math.PI * freq * time) * 0.3;
+        const sample = Math.max(-1, Math.min(1, amplitude)) * 32767;
+        view.setInt16(offset, sample, true);
+        offset += 2;
+      }
     }
     
     return buffer;
@@ -72,8 +82,11 @@ const EncryptionPanel = () => {
     // Simulate encryption process
     await new Promise(resolve => setTimeout(resolve, 3000));
     
-    // Generate actual playable audio data
-    const audioBuffer = generateAudioData();
+    // Use text input or image name for encoding
+    const dataToEncode = textInput.trim() || selectedImage?.name || "";
+    
+    // Generate actual playable audio data with encoded text
+    const audioBuffer = generateAudioData(dataToEncode);
     const blob = new Blob([audioBuffer], { type: "audio/wav" });
     const url = URL.createObjectURL(blob);
     setEncryptedFile(url);

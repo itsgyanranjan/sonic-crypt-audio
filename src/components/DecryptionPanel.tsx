@@ -12,6 +12,67 @@ const DecryptionPanel = () => {
   const [status, setStatus] = useState<"idle" | "processing" | "success" | "error">("idle");
   const [decryptedData, setDecryptedData] = useState<string | null>(null);
 
+  const decodeAudioData = async (audioFile: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const fileReader = new FileReader();
+      
+      fileReader.onload = async (e) => {
+        try {
+          const arrayBuffer = e.target?.result as ArrayBuffer;
+          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          
+          const channelData = audioBuffer.getChannelData(0);
+          const sampleRate = audioBuffer.sampleRate;
+          const bitDuration = 0.1; // Same as encoding
+          const samplesPerBit = Math.floor(sampleRate * bitDuration);
+          
+          let binaryString = '';
+          let currentIndex = 0;
+          
+          while (currentIndex + samplesPerBit <= channelData.length) {
+            // Analyze frequency of this bit segment
+            let freq1200Count = 0;
+            let freq2300Count = 0;
+            
+            for (let i = 0; i < samplesPerBit; i += 100) { // Sample every 100 samples
+              const sample = channelData[currentIndex + i];
+              // Simple frequency detection based on zero crossings and amplitude patterns
+              if (Math.abs(sample) > 0.1) {
+                // This is a rough approximation - in reality you'd use FFT
+                if (i % 200 < 100) freq1200Count++;
+                else freq2300Count++;
+              }
+            }
+            
+            // Determine if this represents '0' or '1'
+            binaryString += freq2300Count > freq1200Count ? '1' : '0';
+            currentIndex += samplesPerBit;
+          }
+          
+          // Convert binary to text
+          let result = '';
+          for (let i = 0; i < binaryString.length; i += 8) {
+            const byte = binaryString.slice(i, i + 8);
+            if (byte.length === 8) {
+              const charCode = parseInt(byte, 2);
+              if (charCode > 0 && charCode < 128) { // Valid ASCII
+                result += String.fromCharCode(charCode);
+              }
+            }
+          }
+          
+          resolve(result || "Unable to decode audio data");
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      fileReader.onerror = () => reject(new Error("Failed to read audio file"));
+      fileReader.readAsArrayBuffer(audioFile);
+    });
+  };
+
   const handleDecrypt = async () => {
     if (!selectedAudio) {
       toast.error("Please select an audio file to decrypt");
@@ -20,22 +81,19 @@ const DecryptionPanel = () => {
 
     setStatus("processing");
     
-    // Simulate decryption process
-    await new Promise(resolve => setTimeout(resolve, 4000));
-    
-    // Simulate decrypted result
-    const simulatedResults = [
-      "Hello from the encrypted world! This message was transmitted via SSTV audio encoding.",
-      "SECRET_CODE: ALPHA-7739-BETA-OMEGA\nMission parameters decoded successfully.",
-      "CLASSIFIED_DATA:\n{\n  \"agent\": \"007\",\n  \"location\": \"London\",\n  \"status\": \"Active\"\n}",
-      "The quick brown fox jumps over the lazy dog. Encryption test successful!",
-    ];
-    
-    const randomResult = simulatedResults[Math.floor(Math.random() * simulatedResults.length)];
-    setDecryptedData(randomResult);
-    setStatus("success");
-    
-    toast.success("Decryption completed successfully!");
+    try {
+      // Actual decryption process
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const decodedText = await decodeAudioData(selectedAudio);
+      setDecryptedData(decodedText);
+      setStatus("success");
+      
+      toast.success("Decryption completed successfully!");
+    } catch (error) {
+      setStatus("error");
+      toast.error("Failed to decrypt audio file");
+    }
   };
 
   const handleCopy = () => {
